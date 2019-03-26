@@ -1,0 +1,12 @@
+answer(){
+    if ("y" prefix "yz")
+        "yes"
+    else
+        "no"
+    +
+    if ("y" prefix "yz")
+        "+yes2"
+    else
+        "+no2"
+}
+answer()

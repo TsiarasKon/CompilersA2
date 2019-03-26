@@ -1,0 +1,38 @@
+getRealIdentity(){
+    "Bruce" + " " + "Wayne"
+}
+
+getGothamHero(){
+    "BATMAN"
+}
+
+batman(sofar, rep, upto) {
+    if(upto suffix sofar)
+        ((sofar) + "BATMAN")
+    else
+        batman(sofar + rep, rep, upto)
+}
+
+gotham(){
+    if ( getGothamHero() suffix  batman("", "na", "nanananananananananana") )
+        "Batman called. Gotham is safe."
+    else
+        "Gotham is doomed!"
+}
+
+checkRealIdentity(suggestion, realname, realsurname){
+    if ( realname + " " + realsurname prefix suggestion )
+        if ( suggestion prefix realname + " " + realsurname )
+            ("Correct Real Identity: " + suggestion)
+        else
+            "(Partially) wrong real identity!"
+    else
+        "Wrong real identity!"
+}
+
+
+getRealIdentity()
+getGothamHero()
+batman("", if ("(!^$!#&*@" prefix getRealIdentity() + getGothamHero()) "la" else "na", "nananananananananananananananana")
+gotham()
+checkRealIdentity(getRealIdentity(), "Bruce", "Wayne")

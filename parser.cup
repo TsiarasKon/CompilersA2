@@ -1,0 +1,84 @@
+/**
+ *  Package and Import Specifications
+ */
+import java_cup.runtime.*;
+
+/**
+ *  Usercode Components
+ */
+
+parser code {:
+    // Connect this parser to a scanner!
+    Scanner s;
+    Parser(Scanner s){ this.s=s; }
+:};
+
+/* define how to connect to the scanner! */
+scan with {: return s.next_token(); :};
+
+/**
+ *  Symbol Lists
+ */
+
+/* Terminals (tokens returned by the scanner). */
+terminal            PLUS, COMMA, LPAREN, RPAREN, LBRACK, RBRACK, IF, ELSE, SUFFIX, PREFIX;
+terminal String     STRING_LITERAL, IDENTIFIER;
+
+/*  Non terminals */
+non terminal            goal;
+non terminal String     valid_string, func_def_list, func_def, func_call_list, func_call, if_clause, condition, func_def_prototype, func_def_arg_list, func_call_prototype, func_call_arg_list;
+
+/**
+ *  Precedence Declarations
+ */
+precedence left COMMA;
+precedence left LPAREN, RPAREN, LBRACK, RBRACK;
+precedence left IF, ELSE;
+precedence left PREFIX, SUFFIX;
+precedence left PLUS;
+
+/**
+ *  The Grammar Rules
+ */
+
+goal ::= func_def_list:defList func_call_list:callList      {: System.out.println("public class Main {\n\tpublic static void main(String[] args) {\n" + callList + "\t}\n" + defList + "\n}"); :}
+;
+
+valid_string ::= STRING_LITERAL:str                         {: RESULT = '"' + str + '"'; :}
+               | IDENTIFIER:str                             {: RESULT = str; :}
+               | func_call_prototype:str                    {: RESULT = str; :}
+               | if_clause:str                              {: RESULT = str; :}
+               | LPAREN valid_string:str RPAREN             {: RESULT = str; :}
+               | valid_string:str1 PLUS valid_string:str2   {: RESULT = str1 + " + " + str2; :}
+;
+
+if_clause ::= IF LPAREN condition:cond RPAREN valid_string:str_true ELSE valid_string:str_false  {: RESULT = "(" + cond + " ? " + str_true + " : " + str_false + ")"; :}
+;
+condition ::= valid_string:str1 PREFIX valid_string:str2    {: RESULT = "((" + str2 + ").startsWith(" + str1 + "))"; :}
+            | valid_string:str1 SUFFIX valid_string:str2    {: RESULT = "((" + str2 + ").endsWith(" + str1 + "))"; :}
+;
+
+func_def_list ::= func_def_list:defList func_def:def    {: RESULT = defList + '\n' + def; :}
+                | func_def:def                          {: RESULT = def; :}
+;
+func_def ::= func_def_prototype:func valid_string:str RBRACK    {: RESULT = "\n\tpublic static String " + func + "\n\t\treturn " + str + ";\n\t}"; :}
+;
+func_def_prototype ::= IDENTIFIER:ident LPAREN func_def_arg_list:argList RPAREN LBRACK   {: RESULT = ident + "(" + argList + ") {"; :}
+                 | IDENTIFIER:ident1 LPAREN IDENTIFIER:ident2 RPAREN LBRACK              {: RESULT = ident1 + "(String " + ident2 + ") {"; :}
+                 | IDENTIFIER:ident LPAREN RPAREN LBRACK                                 {: RESULT = ident + "() {"; :}
+;
+func_def_arg_list ::= func_def_arg_list:argList COMMA IDENTIFIER:ident      {: RESULT = argList + ", String " + ident; :}
+                | IDENTIFIER:ident1 COMMA IDENTIFIER:ident2                 {: RESULT = "String " + ident1 + ", String " + ident2; :}
+;
+
+func_call_list ::= func_call_list:callList func_call:call    {: RESULT = callList + call; :}
+                 | func_call:call                            {: RESULT = call; :}
+;
+func_call ::= func_call_prototype:func      {: RESULT = "\t\tSystem.out.println(" + func + ");\n"; :}
+;
+func_call_prototype ::= IDENTIFIER:ident LPAREN func_call_arg_list:argList RPAREN      {: RESULT = ident + "(" + argList + ")"; :}
+                 | IDENTIFIER:ident LPAREN RPAREN                                      {: RESULT = ident + "()"; :}
+;
+func_call_arg_list ::= func_call_arg_list:argList COMMA valid_string:arg      {: RESULT = argList + ", " + arg; :}
+                | valid_string:arg                                            {: RESULT = arg; :}
+;
