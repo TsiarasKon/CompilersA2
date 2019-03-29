@@ -48,7 +48,7 @@ valid_string ::= STRING_LITERAL:str                         {: RESULT = '"' + st
                | IDENTIFIER:str                             {: RESULT = str; :}
                | func_call_prototype:str                    {: RESULT = str; :}
                | if_clause:str                              {: RESULT = str; :}
-               | LPAREN valid_string:str RPAREN             {: RESULT = str; :}
+               | LPAREN valid_string:str RPAREN             {: RESULT = '(' + str + ')'; :}         // Bonus: accepting rule "str -> (str)"
                | valid_string:str1 PLUS valid_string:str2   {: RESULT = str1 + " + " + str2; :}
 ;
 
